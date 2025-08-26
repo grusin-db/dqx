@@ -894,7 +894,7 @@ def test_build_checks_by_metadata_logging_debug_calls(caplog):
 
 
 def test_validate_check_func_arguments_too_many_positional():
-    with pytest.raises(TypeError, match="takes 2 positional arguments but 3 were given"):
+    with pytest.raises(TypeError, match=re.escape("Too many check_func_args: extra_arg")):
         DQRowRule(
             name="col1_is_not_in_the_list",
             criticality="error",
@@ -905,7 +905,7 @@ def test_validate_check_func_arguments_too_many_positional():
 
 
 def test_validate_check_func_arguments_invalid_keyword():
-    with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid_kwarg'"):
+    with pytest.raises(TypeError, match=re.escape("2 validation errors for parameters of check_func 'is_in_list'. Verify check_func_args and check_func_kwargs\ninvalid_kwarg\n  Extra inputs are not permitted [type=extra_forbidden, input_value='invalid_kwarg', input_type=str]\n")):
         DQRowRule(
             name="col1_is_not_in_the_list",
             criticality="error",
