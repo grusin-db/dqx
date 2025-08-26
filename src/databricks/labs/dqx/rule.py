@@ -88,7 +88,7 @@ REGISTERED_RULE_KLASSES: dict[type['DQCheckFunctionBaseModel'], str] = {}
 REGISTERED_FUNCTIONS: dict[str, dict[str, Callable]] = {}
 CHECK_FUNC_REGISTRY: dict[str, str] = {}
 
-def _register_rule_type(rule_type: str):
+def register_rule_type(rule_type: str):
     """Registeres class for handling the rule type. Cleans up all functions for a rule type"""
 
     def _wrapper(klass):
@@ -121,6 +121,11 @@ def register_rule(rule_type: str) -> Callable:
         mapping = REGISTERED_FUNCTIONS.get(rule_type)
         if mapping is None:
             raise NotImplementedError(f"Not supported rule type: {rule_type!r}")
+
+        # guard for functions having overlapping names across rule_types
+        if existing_type := CHECK_FUNC_REGISTRY.get(func.__name__):
+            if rule_type != existing_type:
+                raise ValueError(f"Cannot reigsterd function {func.__name__!r} with rule type: {rule_type!r}: already registered with rule_type={existing_type!r}")
 
         CHECK_FUNC_REGISTRY[func.__name__] = rule_type
 
@@ -246,8 +251,8 @@ class DQRule(DQCheckFunctionBaseModel):
     """
     name: str = ""
     criticality: Criticality = Field(default=Criticality.ERROR)
-    column: str | Column | None = Field(default=None)
-    columns: list[str | Column] | None = Field(default=None)
+    column: str | Column | None = Field(default=None, min_length=1)
+    columns: list[str | Column] | None = Field(default=None, min_length=1)
     filter: str | None = Field(default=None)
     user_metadata: dict[str, str] | None = None
 
@@ -368,7 +373,7 @@ class DQRule(DQCheckFunctionBaseModel):
         return condition, apply_func
 
 
-@_register_rule_type('row')
+@register_rule_type('row')
 class DQRowRule(DQRule):
     """
     Represents a row-level data quality rule that applies a quality check function to a column or column expression.
@@ -376,7 +381,7 @@ class DQRowRule(DQRule):
     """
     pass
 
-@_register_rule_type('dataset')    
+@register_rule_type('dataset')    
 class DQDatasetRule(DQRule):
     """
     Represents a dataset-level data quality rule that applies a quality check function to a column or
