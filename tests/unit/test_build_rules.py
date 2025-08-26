@@ -3,11 +3,13 @@ import pprint
 import logging
 import datetime
 import json
+import re
 from pathlib import Path
 from unittest.mock import Mock
 import yaml
 import pytest
 import pyspark.sql.functions as F
+from pydantic import ValidationError
 from pyspark.sql import Column
 from databricks.labs.dqx.check_funcs import (
     is_not_null,
@@ -940,7 +942,7 @@ def test_register_rule():
 
 
 def test_row_rule_null_column():
-    with pytest.raises(TypeError, match="missing 1 required positional argument: 'column'"):
+    with pytest.raises(TypeError, match=re.escape("1 validation error for parameters of check_func 'is_not_null'. Verify check_func_args and check_func_kwargs\ncolumn\n  Field required [type=missing, input_value={}, input_type=dict]\n")):
         DQRowRule(
             criticality="warn",
             check_func=is_not_null,
@@ -949,7 +951,7 @@ def test_row_rule_null_column():
 
 
 def test_dataset_rule_null_column():
-    with pytest.raises(TypeError, match="missing 1 required positional argument: 'column'"):
+    with pytest.raises(TypeError, match=re.escape("1 validation error for parameters of check_func 'is_aggr_not_greater_than'. Verify check_func_args and check_func_kwargs\ncolumn\n  Field required [type=missing, input_value={'limit': 1}, input_type=dict]\n")):
         DQDatasetRule(
             criticality="warn",
             check_func=is_aggr_not_greater_than,
@@ -961,7 +963,7 @@ def test_dataset_rule_null_column():
 
 
 def test_dataset_rule_null_columns_items():
-    with pytest.raises(ValueError, match="'columns' list contains a None element"):
+    with pytest.raises(ValueError, match=re.escape("3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n")):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
@@ -973,7 +975,7 @@ def test_dataset_rule_null_columns_items():
 
 
 def test_dataset_rule_empty_columns():
-    with pytest.raises(ValueError, match="'columns' cannot be empty"):
+    with pytest.raises(TypeError, match=re.escape("1 validation error for parameters of check_func 'is_unique'. Verify check_func_args and check_func_kwargs\nlimit\n  Extra inputs are not permitted [type=extra_forbidden, input_value=1, input_type=int]\n")):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
@@ -985,7 +987,7 @@ def test_dataset_rule_empty_columns():
 
 
 def test_row_rule_null_column_in_kwargs():
-    with pytest.raises(TypeError, match="missing 1 required positional argument: 'column'"):
+    with pytest.raises(TypeError, match=re.escape("2 validation errors for parameters of check_func 'is_not_null'. Verify check_func_args and check_func_kwargs\ncolumn.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n")):
         DQRowRule(
             criticality="warn",
             check_func=is_not_null,
@@ -996,7 +998,7 @@ def test_row_rule_null_column_in_kwargs():
 
 
 def test_dataset_rule_null_column_in_kwargs():
-    with pytest.raises(TypeError, match="missing 1 required positional argument: 'column'"):
+    with pytest.raises(TypeError, match=re.escape("2 validation errors for parameters of check_func 'is_aggr_not_greater_than'. Verify check_func_args and check_func_kwargs\ncolumn.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumn.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n")):
         DQDatasetRule(
             criticality="warn",
             check_func=is_aggr_not_greater_than,
@@ -1008,7 +1010,7 @@ def test_dataset_rule_null_column_in_kwargs():
 
 
 def test_dataset_rule_empty_columns_in_kwargs():
-    with pytest.raises(ValueError, match="'columns' cannot be empty"):
+    with pytest.raises(TypeError, match="'columns' cannot be empty"):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
