@@ -48,7 +48,6 @@ from databricks.labs.dqx.checks_serializer import (
     serialize_checks_to_bytes,
 )
 
-from pydantic_core import PydanticSerializationError
 
 SCHEMA = "a: int, b: int, c: int"
 
@@ -907,7 +906,12 @@ def test_validate_check_func_arguments_too_many_positional():
 
 
 def test_validate_check_func_arguments_invalid_keyword():
-    with pytest.raises(TypeError, match=re.escape("2 validation errors for parameters of check_func 'is_in_list'. Verify check_func_args and check_func_kwargs\ninvalid_kwarg\n  Extra inputs are not permitted [type=extra_forbidden, input_value='invalid_kwarg', input_type=str]\n")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "2 validation errors for parameters of check_func 'is_in_list'. Verify check_func_args and check_func_kwargs\ninvalid_kwarg\n  Extra inputs are not permitted [type=extra_forbidden, input_value='invalid_kwarg', input_type=str]\n"
+        ),
+    ):
         DQRowRule(
             name="col1_is_not_in_the_list",
             criticality="error",
@@ -938,10 +942,11 @@ def test_validate_column_and_columns_provided_as_args():
 
 
 def test_register_rule():
-    
+
     @register_rule_type('single_column')
     class DQMockRule(DQRule):
         """My mocked class"""
+
         pass
 
     # Assert registered rule types
@@ -959,13 +964,18 @@ def test_register_rule():
     # Assert that the function is registered correctly
     assert "mock_check_func" in CHECK_FUNC_REGISTRY
     assert CHECK_FUNC_REGISTRY["mock_check_func"] == "single_column"
-    
+
     assert "mock_check_func" in REGISTERED_FUNCTIONS['single_column']
     assert REGISTERED_FUNCTIONS['single_column']['mock_check_func'] == mock_check_func
 
 
 def test_row_rule_null_column():
-    with pytest.raises(TypeError, match=re.escape("1 validation error for parameters of check_func 'is_not_null'. Verify check_func_args and check_func_kwargs\ncolumn\n  Field required [type=missing, input_value={}, input_type=dict]\n")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "1 validation error for parameters of check_func 'is_not_null'. Verify check_func_args and check_func_kwargs\ncolumn\n  Field required [type=missing, input_value={}, input_type=dict]\n"
+        ),
+    ):
         DQRowRule(
             criticality="warn",
             check_func=is_not_null,
@@ -974,7 +984,12 @@ def test_row_rule_null_column():
 
 
 def test_dataset_rule_null_column():
-    with pytest.raises(TypeError, match=re.escape("1 validation error for parameters of check_func 'is_aggr_not_greater_than'. Verify check_func_args and check_func_kwargs\ncolumn\n  Field required [type=missing, input_value={'limit': 1}, input_type=dict]\n")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "1 validation error for parameters of check_func 'is_aggr_not_greater_than'. Verify check_func_args and check_func_kwargs\ncolumn\n  Field required [type=missing, input_value={'limit': 1}, input_type=dict]\n"
+        ),
+    ):
         DQDatasetRule(
             criticality="warn",
             check_func=is_aggr_not_greater_than,
@@ -986,7 +1001,12 @@ def test_dataset_rule_null_column():
 
 
 def test_dataset_rule_null_columns_items():
-    with pytest.raises(ValueError, match=re.escape("3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n")):
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n"
+        ),
+    ):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
@@ -998,7 +1018,12 @@ def test_dataset_rule_null_columns_items():
 
 
 def test_dataset_rule_empty_columns():
-    with pytest.raises(ValidationError, match=re.escape("1 validation error for DQDatasetRule\ncolumns\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n")):
+    with pytest.raises(
+        ValidationError,
+        match=re.escape(
+            "1 validation error for DQDatasetRule\ncolumns\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n"
+        ),
+    ):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
@@ -1010,7 +1035,12 @@ def test_dataset_rule_empty_columns():
 
 
 def test_row_rule_null_column_in_kwargs():
-    with pytest.raises(TypeError, match=re.escape("2 validation errors for parameters of check_func 'is_not_null'. Verify check_func_args and check_func_kwargs\ncolumn.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "2 validation errors for parameters of check_func 'is_not_null'. Verify check_func_args and check_func_kwargs\ncolumn.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n"
+        ),
+    ):
         DQRowRule(
             criticality="warn",
             check_func=is_not_null,
@@ -1021,7 +1051,12 @@ def test_row_rule_null_column_in_kwargs():
 
 
 def test_dataset_rule_null_column_in_kwargs():
-    with pytest.raises(TypeError, match=re.escape("2 validation errors for parameters of check_func 'is_aggr_not_greater_than'. Verify check_func_args and check_func_kwargs\ncolumn.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumn.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "2 validation errors for parameters of check_func 'is_aggr_not_greater_than'. Verify check_func_args and check_func_kwargs\ncolumn.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumn.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n"
+        ),
+    ):
         DQDatasetRule(
             criticality="warn",
             check_func=is_aggr_not_greater_than,
@@ -1033,7 +1068,12 @@ def test_dataset_rule_null_column_in_kwargs():
 
 
 def test_dataset_rule_empty_columns_in_kwargs():
-    with pytest.raises(ValidationError, match=re.escape("1 validation error for DQDatasetRule\ncolumns\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n")):
+    with pytest.raises(
+        ValidationError,
+        match=re.escape(
+            "1 validation error for DQDatasetRule\ncolumns\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n"
+        ),
+    ):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
@@ -1069,7 +1109,12 @@ def test_compare_datasets_when_column_expression_is_complex(
 
 
 def test_dataset_rule_null_columns_items_in_kwargs():
-    with pytest.raises(ValidationError, match=re.escape("3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumns.0.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n")):
+    with pytest.raises(
+        ValidationError,
+        match=re.escape(
+            "3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumns.0.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n"
+        ),
+    ):
         DQDatasetRule(
             criticality="warn",
             check_func=is_unique,
@@ -1392,10 +1437,10 @@ def test_convert_dq_rules_to_metadata_when_not_dq_rule() -> None:
 
 def test_dq_rules_to_dict_when_column_expression_is_complex() -> None:
     r = DQRowRule(
-            criticality="error",
-            check_func=is_not_null_and_not_empty,
-            column=F.col("val") + F.lit(1),
-        )
+        criticality="error",
+        check_func=is_not_null_and_not_empty,
+        column=F.col("val") + F.lit(1),
+    )
     with pytest.raises(ValueError, match="Unable to interpret column expression"):
         r.to_dict()
 
@@ -1403,10 +1448,10 @@ def test_dq_rules_to_dict_when_column_expression_is_complex() -> None:
 def test_dq_rules_to_dict_when_invalid_arg_type() -> None:
     col_dict = {"key1": "col1"}
     r = DQRowRule(
-            criticality="warn",
-            check_func=is_not_null_and_is_in_list,
-            column=F.col("c"),
-            check_func_kwargs={"allowed": col_dict.values()},
+        criticality="warn",
+        check_func=is_not_null_and_is_in_list,
+        column=F.col("c"),
+        check_func_kwargs={"allowed": col_dict.values()},
     )
 
     with pytest.raises(ValueError, match=re.escape("Unable to serialize unknown type: <class 'dict_values'>")):
