@@ -48,6 +48,8 @@ from databricks.labs.dqx.checks_serializer import (
     serialize_checks_to_bytes,
 )
 
+from pydantic_core import PydanticSerializationError
+
 SCHEMA = "a: int, b: int, c: int"
 
 
@@ -1389,23 +1391,26 @@ def test_convert_dq_rules_to_metadata_when_not_dq_rule() -> None:
 
 
 def test_dq_rules_to_dict_when_column_expression_is_complex() -> None:
-    with pytest.raises(ValueError, match="Unable to interpret column expression"):
-        DQRowRule(
+    r = DQRowRule(
             criticality="error",
             check_func=is_not_null_and_not_empty,
             column=F.col("val") + F.lit(1),
-        ).to_dict()
+        )
+    with pytest.raises(ValueError, match="Unable to interpret column expression"):
+        r.to_dict()
 
 
 def test_dq_rules_to_dict_when_invalid_arg_type() -> None:
-    with pytest.raises(TypeError, match="Unsupported type for normalization: dict_values"):
-        col_dict = {"key1": "col1"}
-        DQRowRule(
+    col_dict = {"key1": "col1"}
+    r = DQRowRule(
             criticality="warn",
             check_func=is_not_null_and_is_in_list,
             column=F.col("c"),
             check_func_kwargs={"allowed": col_dict.values()},
-        ).to_dict()
+    )
+
+    with pytest.raises(ValueError, match=re.escape("Unable to serialize unknown type: <class 'dict_values'>")):
+        r.to_dict()
 
 
 def test_metadata_round_trip_conversion_preserves_rules() -> None:
