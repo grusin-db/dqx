@@ -1004,7 +1004,7 @@ def test_dataset_rule_null_columns_items():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n"
+            "2 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n"
         ),
     ):
         DQDatasetRule(
