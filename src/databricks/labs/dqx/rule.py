@@ -160,7 +160,8 @@ class DQBaseModel(BaseModel):
     model_config = ConfigDict(extra='forbid', frozen=True, arbitrary_types_allowed=True)
 
     def to_dict(self):
-        return self.model_dump(exclude_defaults=True, exclude_none=True, mode='json')
+        d = self.model_dump(exclude_defaults=True, exclude_none=True, mode='json')
+        return d
 
     def model_dump_yaml(self):
         d = self.to_dict()
@@ -443,6 +444,20 @@ class DQRule(DQCheckFunctionBaseModel):
             return None
 
         return get_column_name_or_alias(column)
+    
+    def to_dict(self):
+        d =  super().to_dict()
+        d['check'] = {
+            'function': d['check_func'],
+            'arguments': d['check_func_kwargs']
+        }
+
+        d.pop('check_func', None)
+        d.pop('check_func_kwargs', None)
+        d.pop('check_func_args', None)
+
+        return d
+        
 
 
 @register_rule_type('row')

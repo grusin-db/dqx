@@ -1112,7 +1112,7 @@ def test_dataset_rule_null_columns_items_in_kwargs():
     with pytest.raises(
         ValidationError,
         match=re.escape(
-            "3 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumns.0.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n"
+            "2 validation errors for DQDatasetRule\ncolumns.0.str\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.10/v/string_type\ncolumns.0.is-instance[Column]\n  Input should be an instance of Column [type=is_instance_of, input_value=None, input_type=NoneType]\n"
         ),
     ):
         DQDatasetRule(
