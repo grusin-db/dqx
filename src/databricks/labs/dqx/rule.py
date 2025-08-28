@@ -408,14 +408,11 @@ class DQRule(DQCheckFunctionBaseModel):
 
     def _sync_model_fields_to_required_kwargs(self, model_field: str, kwargs_field: str):
         """Mutates current model, so that model_field is added to check_func_kwargs, if it's absent, and is requires on a check_func_singature"""
-        required_params = self.check_func_required_params
-
         m = getattr(self, model_field)
         if m is None:
             return
 
-        # not an optional param
-        if kwargs_field not in required_params:
+        if kwargs_field not in self.check_func_signature.parameters:
             return
 
         # despite model being frozen, dicts are mutable, hence can be modified at will

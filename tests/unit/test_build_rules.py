@@ -487,7 +487,7 @@ def _build_rules_foreach_col(*rules_col_set: DQForEachColRule) -> list[DQRule]:
 
 
 def test_build_rules_by_metadata():
-    checks = [
+    test_build_rules_by_metadata_checks = [
         {
             "check": {
                 "function": "is_not_null_and_not_empty",
@@ -623,7 +623,7 @@ def test_build_rules_by_metadata():
         },
     ]
 
-    actual_rules = deserialize_checks(checks)
+    actual_rules = deserialize_checks(test_build_rules_by_metadata_checks)
 
     expected_rules = [
         DQRowRule(
