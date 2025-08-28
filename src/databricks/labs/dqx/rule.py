@@ -160,7 +160,7 @@ class DQBaseModel(BaseModel):
     model_config = ConfigDict(extra='forbid', frozen=True, arbitrary_types_allowed=True)
 
     def to_dict(self):
-        d = self.model_dump(exclude_defaults=True, exclude_none=True, mode='json')
+        d = self.model_dump(exclude_defaults=False, exclude_none=True, mode='json')
         return d
 
     def model_dump_yaml(self):
@@ -446,17 +446,23 @@ class DQRule(DQCheckFunctionBaseModel):
         return get_column_name_or_alias(column)
     
     def to_dict(self):
-        d =  super().to_dict()
-        d['check'] = {
-            'function': d['check_func'],
-            'arguments': d['check_func_kwargs']
+        d = super().to_dict()
+        
+        metadata = {
+            "name": d['name'],
+            "criticality": d['criticality'],
+            "check": {
+                "function": d['check_func'],
+                "arguments": d['check_func_kwargs']
+            },
         }
+        # if self.filter:
+        #     metadata["filter"] = d['filter']
 
-        d.pop('check_func', None)
-        d.pop('check_func_kwargs', None)
-        d.pop('check_func_args', None)
-
-        return d
+        if self.user_metadata:
+            metadata["user_metadata"] = d['user_metadata']
+        
+        return metadata
         
 
 
