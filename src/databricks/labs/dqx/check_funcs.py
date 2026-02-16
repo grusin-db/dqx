@@ -7,8 +7,9 @@ from enum import Enum
 
 import pyspark.sql.functions as F
 from pyspark.sql import types
-from pyspark.sql import Column, DataFrame, SparkSession
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.window import Window
+from .types import Column
 
 from databricks.labs.dqx.rule import register_rule
 from databricks.labs.dqx.utils import (

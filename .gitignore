@@ -168,3 +168,6 @@ dev/cleanup.py
 # docgen
 docs/dqx/docs/reference/api
 !docs/dqx/docs/reference/api/index.mdx
+
+# jupyter test notebooks
+test_*.ipynb
